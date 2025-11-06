@@ -15,9 +15,10 @@ import java.math.BigDecimal;
 public class Qualification extends BaseTimeEntity {
 
     @Id
-    @Column(name = "qualification_id")
-    private Long id;
+    @Column(name = "scholar_id")
+    private Long id; // PK 이면서 FK
 
+    @MapsId
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "scholar_id")
     private Scholarship scholarship;
@@ -28,7 +29,6 @@ public class Qualification extends BaseTimeEntity {
     @Column(name = "allowed_grade")
     private Byte allowedGrade;
 
-    @Column
     private String major;
 
     @Column(name = "max_income")

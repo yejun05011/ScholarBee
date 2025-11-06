@@ -3,28 +3,37 @@ package com.scholarbee.backend.domain;
 import com.scholarbee.backend.global.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import java.time.LocalDate;
 
 @Entity
-@Table(name = "wishlists",
-        uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"student_id", "scholar_id"})
-        })
+@Table(name = "volunteers")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class Wishlist extends BaseTimeEntity {
+public class Volunteer extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "wish_id")
+    @Column(name = "volunteer_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "student_id", nullable = false)
     private Student student;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "scholar_id", nullable = false)
-    private Scholarship scholarship;
+    private String organization;
+
+    private String activity;
+
+    @Column(name = "start_date")
+    private LocalDate startDate;
+
+    @Column(name = "end_date")
+    private LocalDate endDate;
+
+    private Integer hours;
+
+    @Column(length = 1024)
+    private String description;
 }

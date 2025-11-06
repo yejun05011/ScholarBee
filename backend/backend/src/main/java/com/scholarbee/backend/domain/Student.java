@@ -4,6 +4,9 @@ import com.scholarbee.backend.global.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "students")
 @Getter
@@ -17,12 +20,21 @@ public class Student extends BaseTimeEntity {
     @Column(name = "student_id")
     private Long id;
 
-    @Column(length = 10, nullable = false)
     private String name;
 
-    @Column(nullable = false, unique = true)
+    private String department;
+
+    private Integer grade;
+
+    private Boolean disabled;
+
     private String email;
 
-    @Column(nullable = false)
     private String password;
+
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Volunteer> volunteers = new ArrayList<>();
+
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AcademicRecord> academicRecords = new ArrayList<>();
 }
