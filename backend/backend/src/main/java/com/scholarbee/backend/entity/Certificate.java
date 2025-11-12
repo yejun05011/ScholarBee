@@ -35,4 +35,9 @@ public class Certificate extends BaseTimeEntity {
     private LocalDate expiryDate;
 
     private Integer score;
+
+    public Certificate(Student student, String qualificationName) {
+        this.student = student;
+        this.qualificationName = qualificationName;
+    }
 }

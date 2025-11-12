@@ -23,6 +23,7 @@ public class AcademicRecord extends BaseTimeEntity {
     @JoinColumn(name = "student_id")
     private Student student;
 
+    // 1~8학기 등으로 표시 (1=1학년1학기, 8=4학년2학기)
     private Integer semester;
 
     private Integer credits;
