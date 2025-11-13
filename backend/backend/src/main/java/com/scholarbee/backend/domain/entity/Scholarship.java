@@ -1,12 +1,10 @@
-package com.scholarbee.backend.domain;
+package com.scholarbee.backend.domain.entity;
 
 import com.scholarbee.backend.global.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
