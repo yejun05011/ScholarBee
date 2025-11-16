@@ -1,6 +1,7 @@
 package com.scholarbee.backend.controller;
 
-import com.scholarbee.backend.dto.StudentDetailsRequestDto;
+import com.scholarbee.backend.dto.StudentDetailResponseDto;
+import com.scholarbee.backend.dto.StudentDetailRequestDto;
 import com.scholarbee.backend.global.response.CustomResponse;
 import com.scholarbee.backend.service.StudentDetailService;
 import lombok.RequiredArgsConstructor;
@@ -8,10 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,11 +21,22 @@ public class StudentDetailController {
     @PostMapping("/details")
     public ResponseEntity<CustomResponse<Void>> registerStudentDetails(
             @AuthenticationPrincipal UserDetails userDetails,
-            @RequestBody StudentDetailsRequestDto requestDto) {
+            @RequestBody StudentDetailRequestDto requestDto) {
         studentDetailService.registerStudentDetails(userDetails.getUsername(), requestDto);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(CustomResponse.created("사용자 정보가 등록되었습니다.", null));
+    }
+
+    @GetMapping("/datails")
+    public ResponseEntity<CustomResponse<StudentDetailResponseDto>> getStudentDetails(
+            @AuthenticationPrincipal UserDetails userDetails) {
+        StudentDetailResponseDto responseDto =
+                studentDetailService.getStudentDetails(userDetails.getUsername());
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(CustomResponse.ok("사용자 입력정보 조회 성공", responseDto));
     }
 }

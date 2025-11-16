@@ -11,12 +11,13 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class StudentDetailsRequestDto {
+public class StudentDetailRequestDto {
 
     private Integer grade;
     private String department;
     private Boolean isDisabled;
     private Integer incomeBracket;
+
     private Integer volunteerHours;
     private List<String> certificates;
     private List<AcademicRecordRequestDto> records;

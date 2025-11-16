@@ -40,6 +40,9 @@ public class Student extends BaseTimeEntity {
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AcademicRecord> academicRecords = new ArrayList<>();
 
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Certificate> certificates = new ArrayList<>();
+
     public void updateDetails(String department, Boolean isDisabled) {
         if (department != null) this.department = department;
         if (isDisabled != null) this.disabled = isDisabled;
