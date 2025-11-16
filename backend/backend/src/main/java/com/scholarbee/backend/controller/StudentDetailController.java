@@ -29,14 +29,14 @@ public class StudentDetailController {
                 .body(CustomResponse.created("사용자 정보가 등록되었습니다.", null));
     }
 
-    @GetMapping("/datails")
+    @GetMapping("/details")
     public ResponseEntity<CustomResponse<StudentDetailResponseDto>> getStudentDetails(
             @AuthenticationPrincipal UserDetails userDetails) {
-        StudentDetailResponseDto responseDto =
-                studentDetailService.getStudentDetails(userDetails.getUsername());
+        StudentDetailResponseDto response = studentDetailService.getStudentDetails(userDetails.getUsername());
 
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(CustomResponse.ok("사용자 입력정보 조회 성공", responseDto));
+        return ResponseEntity.ok(
+                CustomResponse.ok("사용자 입력정보 조회 성공", response)
+        );
     }
+
 }

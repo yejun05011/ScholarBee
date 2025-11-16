@@ -34,6 +34,8 @@ public class Student extends BaseTimeEntity {
 
     private Integer incomeBracket;
 
+    private Double gpa; // 학생의 전체 학점 평균
+
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Volunteer> volunteers = new ArrayList<>();
 
@@ -46,5 +48,9 @@ public class Student extends BaseTimeEntity {
     public void updateDetails(String department, Boolean isDisabled) {
         if (department != null) this.department = department;
         if (isDisabled != null) this.disabled = isDisabled;
+    }
+
+    public void updateGpa(Double gpa) {
+        this.gpa = gpa;
     }
 }

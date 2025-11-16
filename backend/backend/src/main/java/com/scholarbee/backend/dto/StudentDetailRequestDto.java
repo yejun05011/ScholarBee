@@ -18,7 +18,7 @@ public class StudentDetailRequestDto {
     private Boolean isDisabled;
     private Integer incomeBracket;
 
-    private Integer volunteerHours;
+    private List<VolunteerRequestDto> volunteers;
     private List<String> certificates;
     private List<AcademicRecordRequestDto> records;
 }

@@ -29,5 +29,5 @@ public class AcademicRecord extends BaseTimeEntity {
     private Integer credits;
 
     @Column(precision = 3, scale = 2)
-    private BigDecimal score;
+    private BigDecimal score; // 학생의 해당 학기 학점
 }
