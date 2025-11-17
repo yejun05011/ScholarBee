@@ -15,15 +15,15 @@ public class Certificate extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "qualification_id")
+    @Column(name = "certification_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "student_id", nullable = false)
     private Student student;
 
-    @Column(name = "qualification_name")
-    private String qualificationName;
+    @Column(name = "certification_name")
+    private String certificationName;
 
     @Column(name = "issuing_authority")
     private String issuingAuthority;
@@ -36,8 +36,8 @@ public class Certificate extends BaseTimeEntity {
 
     private Integer score;
 
-    public Certificate(Student student, String qualificationName) {
+    public Certificate(Student student, String certificationName) {
         this.student = student;
-        this.qualificationName = qualificationName;
+        this.certificationName = certificationName;
     }
 }

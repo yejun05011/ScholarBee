@@ -15,7 +15,7 @@ public class CertificateDto {
     public static CertificateDto from(Certificate cert) {
         return CertificateDto.builder()
                 .certificateId(cert.getId())
-                .name(cert.getQualificationName())
+                .name(cert.getCertificationName())
                 .score(cert.getScore())
                 .build();
     }
