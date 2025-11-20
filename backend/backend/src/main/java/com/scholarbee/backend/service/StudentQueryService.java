@@ -2,6 +2,7 @@ package com.scholarbee.backend.service;
 
 import com.scholarbee.backend.dto.StudentLoginRequestDto;
 import com.scholarbee.backend.dto.StudentLoginResponseDto;
+import com.scholarbee.backend.dto.StudentMyPageResponseDto;
 import com.scholarbee.backend.entity.Student;
 import com.scholarbee.backend.global.exception.CustomException;
 import com.scholarbee.backend.global.jwt.JwtTokenProvider;
@@ -33,6 +34,18 @@ public class StudentQueryService {
         return StudentLoginResponseDto.builder()
                 .accessToken(accessToken)
                 .expiresIn(expiresIn)
+                .build();
+    }
+
+    public StudentMyPageResponseDto getMyPage(String email) {
+        Student student = studentRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("학생을 찾을 수 없습니다."));
+
+        return StudentMyPageResponseDto.builder()
+                .studentId(student.getId())
+                .name(student.getName())
+                .email(student.getEmail())
+                .department(student.getDepartment())
                 .build();
     }
 }
