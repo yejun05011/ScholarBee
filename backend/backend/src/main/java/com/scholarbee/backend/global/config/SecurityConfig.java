@@ -26,13 +26,15 @@ public class SecurityConfig {
                 )
 
                 .authorizeHttpRequests(auth -> auth
-                        // 로그인/회원가입은 인증 필요 없음
+                        // 로그인/회원가입
                         .requestMatchers("/api/v1/auth/**").permitAll()
 
-                        // ⭐ 장학금 등록 API만 인증 없이 허용
+                        // 장학금 등록 허용
                         .requestMatchers(HttpMethod.POST, "/api/v1/scholarships").permitAll()
 
-                        // 나머지는 인증 필요
+                        // ⭐ 장학금 삭제 허용
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/scholarships/**").permitAll()
+
                         .anyRequest().authenticated()
                 )
 
