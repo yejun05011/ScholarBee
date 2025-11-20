@@ -34,7 +34,7 @@ public class Student extends BaseTimeEntity {
 
     private Integer incomeBracket;
 
-    private Double gpa; // 학생의 전체 학점 평균
+    private Double gpa; // 학생의 현재 학기까지 전체 학점 평균
 
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Volunteer> volunteers = new ArrayList<>();

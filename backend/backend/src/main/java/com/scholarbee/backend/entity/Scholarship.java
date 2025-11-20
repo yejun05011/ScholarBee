@@ -26,7 +26,7 @@ public class Scholarship extends BaseTimeEntity {
 
     private String foundation;
 
-    private BigInteger amount;
+    private String amount;
 
     @Column(name = "apply_start")
     private LocalDate applyStart;
