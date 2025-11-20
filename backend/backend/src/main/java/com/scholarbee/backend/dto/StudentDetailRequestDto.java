@@ -19,6 +19,6 @@ public class StudentDetailRequestDto {
     private Integer incomeBracket;
 
     private List<VolunteerRequestDto> volunteers;
-    private List<String> certificates;
+    private List<CertificateRequestDto> certificates;
     private List<AcademicRecordRequestDto> records;
 }

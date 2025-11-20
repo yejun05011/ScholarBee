@@ -32,7 +32,9 @@ public class StudentDetailService {
 
         student.updateDetails(
                 requestDto.getDepartment(),
-                requestDto.getIsDisabled()
+                requestDto.getIsDisabled(),
+                requestDto.getIncomeBracket(),
+                requestDto.getGrade()
         );
 
         if (requestDto.getRecords() != null) {
@@ -49,8 +51,16 @@ public class StudentDetailService {
         }
 
         if (requestDto.getCertificates() != null) {
-            requestDto.getCertificates().forEach(name -> {
-                Certificate cert = new Certificate(student, name);
+            requestDto.getCertificates().forEach(c -> {
+                Certificate cert = Certificate.builder()
+                        .student(student)
+                        .certificationName(c.getName())
+                        .issuingAuthority(c.getIssuingAuthority())
+                        .issueDate(c.getIssueDate())
+                        .expiryDate(c.getExpiryDate())
+                        .score(c.getScore())
+                        .build();
+
                 student.getCertificates().add(cert);
             });
         }

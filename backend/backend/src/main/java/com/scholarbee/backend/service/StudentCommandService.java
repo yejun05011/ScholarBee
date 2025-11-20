@@ -23,6 +23,7 @@ public class StudentCommandService {
         }
 
         Student student = Student.builder()
+                .name(request.getName())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .build();

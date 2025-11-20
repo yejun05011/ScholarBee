@@ -29,4 +29,15 @@ public class JwtTokenProvider {
     public long getAccessTokenValiditySeconds() {
         return accessTokenValidity / 1000;
     }
+
+    public String getEmailFromToken(String token) {
+        return Jwts
+                .parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
+    }
+
 }
