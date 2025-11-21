@@ -23,9 +23,9 @@ public class ScholarshipController {
 
     @PostMapping
     public ResponseEntity<CustomResponse<ScholarshipCreateResponseDto>> createScholarship(
-            ) {
+            @RequestBody ScholarshipCreateRequestDto request
+    ) {
 
-        List<ScholarshipCreateRequestDto>
         ScholarshipCreateResponseDto response = scholarshipService.createScholarship(request);
 
         return ResponseEntity.status(HttpStatus.CREATED)
