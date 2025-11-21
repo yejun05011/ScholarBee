@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+
 @Service
 @RequiredArgsConstructor
 public class ScholarshipService {
@@ -22,8 +24,8 @@ public class ScholarshipService {
                 .name(req.getName())
                 .amount(req.getAmount())
                 .foundation(req.getFoundation())
-                .applyStart(req.getApplyStart())
-                .applyEnd(req.getApplyEnd())
+                .applyStart(LocalDate.parse(req.getApplyStart()))
+                .applyEnd(LocalDate.parse(req.getApplyEnd()))
                 .build();
 
         Scholarship saved = scholarshipRepository.save(scholarship);
