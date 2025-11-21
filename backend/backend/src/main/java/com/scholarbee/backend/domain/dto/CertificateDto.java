@@ -1,6 +1,6 @@
-package com.scholarbee.backend.dto;
+package com.scholarbee.backend.domain.dto;
 
-import com.scholarbee.backend.entity.Certificate;
+import com.scholarbee.backend.domain.entity.Certificate;
 import lombok.Builder;
 import lombok.Getter;
 

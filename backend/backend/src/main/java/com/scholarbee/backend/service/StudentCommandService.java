@@ -1,8 +1,8 @@
 package com.scholarbee.backend.service;
 
-import com.scholarbee.backend.dto.StudentRegisterRequestDto;
-import com.scholarbee.backend.dto.StudentResponseDto;
-import com.scholarbee.backend.entity.Student;
+import com.scholarbee.backend.domain.dto.StudentRegisterRequestDto;
+import com.scholarbee.backend.domain.dto.StudentResponseDto;
+import com.scholarbee.backend.domain.entity.Student;
 import com.scholarbee.backend.global.exception.CustomException;
 import com.scholarbee.backend.repository.StudentRepository;
 import lombok.RequiredArgsConstructor;

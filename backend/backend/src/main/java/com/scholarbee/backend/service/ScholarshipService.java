@@ -1,9 +1,9 @@
 package com.scholarbee.backend.service;
 
-import com.scholarbee.backend.dto.ScholarshipCreateRequestDto;
-import com.scholarbee.backend.dto.ScholarshipCreateResponseDto;
-import com.scholarbee.backend.dto.ScholarshipDeleteResponseDto;
-import com.scholarbee.backend.entity.Scholarship;
+import com.scholarbee.backend.domain.dto.ScholarshipCreateRequestDto;
+import com.scholarbee.backend.domain.dto.ScholarshipCreateResponseDto;
+import com.scholarbee.backend.domain.dto.ScholarshipDeleteResponseDto;
+import com.scholarbee.backend.domain.entity.Scholarship;
 import com.scholarbee.backend.global.exception.CustomException;
 import com.scholarbee.backend.repository.ScholarshipRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,8 +22,8 @@ public class ScholarshipService {
                 .name(req.getName())
                 .amount(req.getAmount())
                 .foundation(req.getFoundation())
-                .applyStart(req.getApply_start())
-                .applyEnd(req.getApply_end())
+                .applyStart(req.getApplyStart())
+                .applyEnd(req.getApplyEnd())
                 .build();
 
         Scholarship saved = scholarshipRepository.save(scholarship);

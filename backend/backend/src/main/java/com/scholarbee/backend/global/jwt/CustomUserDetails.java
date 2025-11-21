@@ -1,6 +1,6 @@
 package com.scholarbee.backend.global.jwt;
 
-import com.scholarbee.backend.entity.Student;
+import com.scholarbee.backend.domain.entity.Student;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 

@@ -1,6 +1,6 @@
 package com.scholarbee.backend.repository;
 
-import com.scholarbee.backend.entity.Scholarship;
+import com.scholarbee.backend.domain.entity.Scholarship;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ScholarshipRepository extends JpaRepository<Scholarship, Long> {

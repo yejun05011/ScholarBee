@@ -1,9 +1,9 @@
 package com.scholarbee.backend.controller;
 
-import com.scholarbee.backend.dto.StudentLoginRequestDto;
-import com.scholarbee.backend.dto.StudentLoginResponseDto;
-import com.scholarbee.backend.dto.StudentRegisterRequestDto;
-import com.scholarbee.backend.dto.StudentResponseDto;
+import com.scholarbee.backend.domain.dto.StudentLoginRequestDto;
+import com.scholarbee.backend.domain.dto.StudentLoginResponseDto;
+import com.scholarbee.backend.domain.dto.StudentRegisterRequestDto;
+import com.scholarbee.backend.domain.dto.StudentResponseDto;
 import com.scholarbee.backend.global.response.CustomResponse;
 import com.scholarbee.backend.service.StudentCommandService;
 import com.scholarbee.backend.service.StudentQueryService;

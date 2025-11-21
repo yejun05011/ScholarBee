@@ -1,6 +1,6 @@
 package com.scholarbee.backend.repository;
 
-import com.scholarbee.backend.entity.Student;
+import com.scholarbee.backend.domain.entity.Student;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

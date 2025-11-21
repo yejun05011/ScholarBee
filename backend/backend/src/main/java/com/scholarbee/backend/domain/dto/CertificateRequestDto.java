@@ -1,4 +1,4 @@
-package com.scholarbee.backend.dto;
+package com.scholarbee.backend.domain.dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

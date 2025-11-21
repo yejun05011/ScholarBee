@@ -1,9 +1,9 @@
 package com.scholarbee.backend.service;
 
-import com.scholarbee.backend.dto.StudentLoginRequestDto;
-import com.scholarbee.backend.dto.StudentLoginResponseDto;
-import com.scholarbee.backend.dto.StudentMyPageResponseDto;
-import com.scholarbee.backend.entity.Student;
+import com.scholarbee.backend.domain.dto.StudentLoginRequestDto;
+import com.scholarbee.backend.domain.dto.StudentLoginResponseDto;
+import com.scholarbee.backend.domain.dto.StudentMyPageResponseDto;
+import com.scholarbee.backend.domain.entity.Student;
 import com.scholarbee.backend.global.exception.CustomException;
 import com.scholarbee.backend.global.jwt.JwtTokenProvider;
 import com.scholarbee.backend.repository.StudentRepository;

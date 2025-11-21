@@ -1,10 +1,9 @@
-package com.scholarbee.backend.entity;
+package com.scholarbee.backend.domain.entity;
 
 import com.scholarbee.backend.global.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.math.BigInteger;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
