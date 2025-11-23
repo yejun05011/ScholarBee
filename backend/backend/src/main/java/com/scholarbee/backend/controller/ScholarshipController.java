@@ -19,17 +19,16 @@ import java.util.List;
 public class ScholarshipController {
 
     private final ScholarshipService scholarshipService;
-    private final HufsScholarshipCrawler hufsScholarshipCrawler;
 
     @PostMapping
-    public ResponseEntity<CustomResponse<ScholarshipCreateResponseDto>> createScholarship(
+    public ResponseEntity<CustomResponse<Integer>> createScholarship(
             @RequestBody ScholarshipCreateRequestDto request
     ) {
+        int count = scholarshipService.registerScholarships();
 
-        ScholarshipCreateResponseDto response = scholarshipService.createScholarship(request);
-
+        // 등록된 장학금 수 반환
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(CustomResponse.created("장학금이 등록되었습니다.", response));
+                .body(CustomResponse.created("장학금이 등록되었습니다.", count));
     }
 
     @DeleteMapping("/{scholarshipId}")
