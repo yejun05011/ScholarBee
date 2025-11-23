@@ -45,7 +45,7 @@ public class ScholarshipService {
             // 문단마다 ML 라벨링 + 파싱
             for (String paragraph : paragraphs) {
 
-                String label = mlService.predictLabel(paragraph);
+                String label = mlService.predict(paragraph);
 
                 switch (label) {
                     case "APPLY_PERIOD" -> parser.parseApplyPeriod(parsed, paragraph);
