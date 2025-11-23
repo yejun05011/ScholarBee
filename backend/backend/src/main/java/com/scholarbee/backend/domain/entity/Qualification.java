@@ -1,4 +1,4 @@
-package com.scholarbee.backend.entity;
+package com.scholarbee.backend.domain.entity;
 
 import com.scholarbee.backend.global.BaseTimeEntity;
 import jakarta.persistence.*;

@@ -1,7 +1,7 @@
 package com.scholarbee.backend.controller;
 
-import com.scholarbee.backend.dto.StudentDetailResponseDto;
-import com.scholarbee.backend.dto.StudentDetailRequestDto;
+import com.scholarbee.backend.domain.dto.StudentDetailResponseDto;
+import com.scholarbee.backend.domain.dto.StudentDetailRequestDto;
 import com.scholarbee.backend.global.response.CustomResponse;
 import com.scholarbee.backend.service.StudentDetailService;
 import lombok.RequiredArgsConstructor;

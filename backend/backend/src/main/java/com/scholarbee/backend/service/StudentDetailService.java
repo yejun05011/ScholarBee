@@ -1,11 +1,11 @@
 package com.scholarbee.backend.service;
 
-import com.scholarbee.backend.dto.StudentDetailResponseDto;
-import com.scholarbee.backend.dto.StudentDetailRequestDto;
-import com.scholarbee.backend.entity.AcademicRecord;
-import com.scholarbee.backend.entity.Certificate;
-import com.scholarbee.backend.entity.Student;
-import com.scholarbee.backend.entity.Volunteer;
+import com.scholarbee.backend.domain.dto.StudentDetailResponseDto;
+import com.scholarbee.backend.domain.dto.StudentDetailRequestDto;
+import com.scholarbee.backend.domain.entity.AcademicRecord;
+import com.scholarbee.backend.domain.entity.Certificate;
+import com.scholarbee.backend.domain.entity.Student;
+import com.scholarbee.backend.domain.entity.Volunteer;
 import com.scholarbee.backend.global.exception.CustomException;
 import com.scholarbee.backend.repository.AcademicRecordRepository;
 import com.scholarbee.backend.repository.CertificateRepository;
