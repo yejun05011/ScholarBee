@@ -1,4 +1,4 @@
-package com.scholarbee.backend.dto;
+package com.scholarbee.backend.domain.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class StudentLoginResponseDto {
+public class StudentLoginRequestDto {
 
-    private String accessToken;
-    private long expiresIn;
+    private String email;
+    private String password;
 }

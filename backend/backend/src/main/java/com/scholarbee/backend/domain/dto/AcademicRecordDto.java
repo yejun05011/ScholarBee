@@ -1,6 +1,6 @@
-package com.scholarbee.backend.dto;
+package com.scholarbee.backend.domain.dto;
 
-import com.scholarbee.backend.entity.AcademicRecord;
+import com.scholarbee.backend.domain.entity.AcademicRecord;
 import lombok.Builder;
 import lombok.Getter;
 

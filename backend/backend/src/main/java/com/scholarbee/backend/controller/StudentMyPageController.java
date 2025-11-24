@@ -1,6 +1,6 @@
 package com.scholarbee.backend.controller;
 
-import com.scholarbee.backend.dto.StudentMyPageResponseDto;
+import com.scholarbee.backend.domain.dto.StudentMyPageResponseDto;
 import com.scholarbee.backend.global.response.CustomResponse;
 import com.scholarbee.backend.service.StudentQueryService;
 import lombok.RequiredArgsConstructor;
