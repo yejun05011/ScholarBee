@@ -1,0 +1,24 @@
+package com.scholarbee.backend.domain.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
+
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class StudentDetailRequestDto {
+
+    private Integer grade;
+    private String department;
+    private Boolean isDisabled;
+    private Integer incomeBracket;
+
+    private List<VolunteerRequestDto> volunteers;
+    private List<CertificateRequestDto> certificates;
+    private List<AcademicRecordRequestDto> records;
+}
