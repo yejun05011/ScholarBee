@@ -35,8 +35,10 @@ out/
 /*.pid
 
 # === Environment / Config ===
-application-*.yml
-application-*.properties
+application.yml
+application.properties
+application*.yml
+application*.properties
 .env
 
 # === Frontend (if using React/Vue) ===
