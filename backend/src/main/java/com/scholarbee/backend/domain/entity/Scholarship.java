@@ -17,7 +17,7 @@ public class Scholarship {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "scholarship_id")
+    @Column(name = "scholar_id")
     private Long id;
 
     /** 기본 정보 */

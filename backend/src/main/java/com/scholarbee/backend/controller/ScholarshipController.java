@@ -22,7 +22,6 @@ public class ScholarshipController {
 
     @PostMapping
     public ResponseEntity<CustomResponse<Integer>> createScholarship(
-            @RequestBody ScholarshipCreateRequestDto request
     ) {
         int count = scholarshipService.registerScholarships();
 
