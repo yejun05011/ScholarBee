@@ -33,6 +33,7 @@ public class ScholarshipService {
         int count = 0;
 
         for (ScholarshipRawDto raw : crawled) {
+            System.out.println("raw text before save: {}" + raw.getRawText());
 
             // 중복 체크
             if (scholarshipRepository.existsByName(raw.getName())) continue;
@@ -74,6 +75,7 @@ public class ScholarshipService {
                     .build();
 
             scholarshipRepository.save(s);
+            System.out.println("after save = {}" + s.getRawText());
             count++;
         }
 

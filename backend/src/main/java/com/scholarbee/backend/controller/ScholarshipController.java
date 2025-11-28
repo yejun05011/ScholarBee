@@ -1,17 +1,13 @@
 package com.scholarbee.backend.controller;
 
 import com.scholarbee.backend.domain.dto.ScholarshipCreateRequestDto;
-import com.scholarbee.backend.domain.dto.ScholarshipCreateResponseDto;
 import com.scholarbee.backend.domain.dto.ScholarshipDeleteResponseDto;
-import com.scholarbee.backend.global.crawler.HufsScholarshipCrawler;
 import com.scholarbee.backend.global.response.CustomResponse;
 import com.scholarbee.backend.service.ScholarshipService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor

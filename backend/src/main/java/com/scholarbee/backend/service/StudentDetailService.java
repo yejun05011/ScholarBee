@@ -1,7 +1,7 @@
 package com.scholarbee.backend.service;
 
-import com.scholarbee.backend.domain.dto.StudentDetailResponseDto;
 import com.scholarbee.backend.domain.dto.StudentDetailRequestDto;
+import com.scholarbee.backend.domain.dto.StudentDetailResponseDto;
 import com.scholarbee.backend.domain.entity.AcademicRecord;
 import com.scholarbee.backend.domain.entity.Certificate;
 import com.scholarbee.backend.domain.entity.Student;

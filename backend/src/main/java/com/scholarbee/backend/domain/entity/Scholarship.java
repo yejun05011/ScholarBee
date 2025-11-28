@@ -1,5 +1,6 @@
 package com.scholarbee.backend.domain.entity;
 
+import com.scholarbee.backend.global.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -13,7 +14,7 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class Scholarship {
+public class Scholarship extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
