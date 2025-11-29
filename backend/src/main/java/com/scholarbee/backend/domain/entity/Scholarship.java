@@ -1,61 +1,46 @@
 package com.scholarbee.backend.domain.entity;
 
-import com.scholarbee.backend.global.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Entity
-@Table(name = "scholarships")
 @Getter
 @Setter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
 @Builder
-public class Scholarship extends BaseTimeEntity {
+@NoArgsConstructor
+@AllArgsConstructor
+@Table(name="scholarships")
+public class Scholarship {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "scholar_id")
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="scholar_id")
     private Long id;
 
-    /** 기본 정보 */
-    @Column(nullable = false, length = 200)
-    private String name;
+    private String name;            // 제목 (짧음 → VARCHAR로 충분)
 
-    @Column(length = 200)
-    private String foundation;
+    private String foundation;      // 재단명 (짧음)
 
-    @Column(length = 500)
-    private String url;
+    private String url;             // 원문 URL
 
-    @Column(length = 20)
-    private String postedDate;  // YYYY.MM.DD 형태 그대로 저장
+    private String postedDate;      // 게시일자 (varchar)
 
-    /** 지원 기간 */
-    @Column(length = 20)
-    private String applyStart;
-
-    @Column(length = 20)
-    private String applyEnd;
-
-    /** 지원 금액 및 인원 */
-    @Column(length = 50)
-    private String amount; // ex: "100만원"
-
-    @Column(length = 50)
-    private String people; // ex: "30명"
-
-    /** 리스트 형태로 저장되는 데이터 */
-    @ElementCollection
-    private List<String> targets = new ArrayList<>();
-
-    @ElementCollection
-    private List<String> requiredDocs = new ArrayList<>();
-
-    /** 원문 저장 (검색, 재파싱, 학습용) */
     @Lob
-    private String rawText;
+    private String rawText;         // 상세 본문 전체
+
+    // ─────────────── 파싱 결과 ───────────────
+
+    @Lob
+    private String applyPeriod;     // 기간 전체 문구 (예: "2025.03.01 ~ 2025.03.31")
+
+    @Lob
+    private String amount;          // 금액 문구 (예: "등록금 전액", "최대 200만원")
+
+    @Lob
+    private String people;          // 인원 문구 (예: "OO명")
+
+    @Lob
+    private String targets;         // 지원자격 전체 문단
+
+    @Lob
+    private String requiredDocs;    // 제출서류 전체 문단
 }

@@ -4,13 +4,13 @@ import com.scholarbee.backend.domain.dto.ScholarshipDeleteResponseDto;
 import com.scholarbee.backend.domain.dto.ScholarshipParsedDto;
 import com.scholarbee.backend.domain.dto.ScholarshipRawDto;
 import com.scholarbee.backend.domain.entity.Scholarship;
-import com.scholarbee.backend.global.crawler.HufsScholarshipCrawler;
+import com.scholarbee.backend.global.BaseTimeEntity;
+import com.scholarbee.backend.global.crawler.ScholarshipCrawler;
 import com.scholarbee.backend.global.exception.CustomException;
-import com.scholarbee.backend.global.parser.MlInferenceService;
-import com.scholarbee.backend.global.parser.ParagraphExtractor;
 import com.scholarbee.backend.global.parser.ScholarshipParser;
 import com.scholarbee.backend.repository.ScholarshipRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -18,65 +18,60 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class ScholarshipService {
+@Slf4j
+public class ScholarshipService extends BaseTimeEntity {
 
-    private final HufsScholarshipCrawler crawler;
-    private final ParagraphExtractor extractor;
-    private final MlInferenceService mlService;
-    private final ScholarshipParser parser;
     private final ScholarshipRepository scholarshipRepository;
+    private final ScholarshipCrawler crawler;
 
+    // 👇 이제 이거 하나만 쓴다
+    private final ScholarshipParser parser = new ScholarshipParser();
+
+    /**
+     * 장학 공지 전체 크롤링 + 파싱 + 저장
+     */
     public int registerScholarships() {
 
-        // 장학 공지 크롤링
         List<ScholarshipRawDto> crawled = crawler.crawl();
         int count = 0;
 
         for (ScholarshipRawDto raw : crawled) {
-            System.out.println("raw text before save: {}" + raw.getRawText());
 
-            // 중복 체크
-            if (scholarshipRepository.existsByName(raw.getName())) continue;
-
-            // 문단 분리
-            List<String> paragraphs = extractor.splitIntoParagraphs(raw.getRawText());
-
-            ScholarshipParsedDto parsed = new ScholarshipParsedDto();
-
-            // 문단마다 ML 라벨링 + 파싱
-            for (String paragraph : paragraphs) {
-
-                String label = mlService.predict(paragraph);
-
-                switch (label) {
-                    case "APPLY_PERIOD" -> parser.parseApplyPeriod(parsed, paragraph);
-                    case "AMOUNT_PEOPLE" -> parser.parseAmount(parsed, paragraph);
-                    case "TARGET" -> parser.parseTarget(parsed, paragraph);
-                    case "REQUIRED_DOCS" -> parser.parseRequiredDocs(parsed, paragraph);
-                }
+            // 1) 중복 제목 스킵
+            if (scholarshipRepository.existsByName(raw.getName())) {
+                continue;
             }
 
-            // 엔티티 생성
-            String finalFoundation =
-                    parser.chooseFoundation(raw.getFoundation(), parsed.getFoundationCandidates());
+            try {
+                // 2) 본문이 없으면 스킵
+                if (raw.getRawText() == null || raw.getRawText().isBlank()) {
+                    log.warn("[Skip] 본문 없음: {}", raw.getName());
+                    continue;
+                }
 
-            Scholarship s = Scholarship.builder()
-                    .name(raw.getName())
-                    .foundation(finalFoundation)
-                    .url(raw.getUrl())
-                    .postedDate(raw.getPostedDate())
-                    .rawText(raw.getRawText())
-                    .applyStart(parsed.getApplyStart())
-                    .applyEnd(parsed.getApplyEnd())
-                    .amount(parsed.getAmount())
-                    .people(parsed.getPeople())
-                    .targets(parsed.getTargets())
-                    .requiredDocs(parsed.getRequiredDocs())
-                    .build();
+                // 3) HTML 전체를 한 번에 파싱
+                ScholarshipParsedDto parsed = parser.parseAll(raw.getRawText());
 
-            scholarshipRepository.save(s);
-            System.out.println("after save = {}" + s.getRawText());
-            count++;
+                Scholarship s = Scholarship.builder()
+                        .name(raw.getName())
+                        .foundation(raw.getFoundation())
+                        .url(raw.getUrl())
+                        .postedDate(raw.getPostedDate())
+                        .rawText(raw.getRawText())          // 프론트 렌더링용 HTML
+
+                        .applyPeriod(parsed.getApplyPeriod())
+                        .amount(parsed.getAmount())
+                        .people(parsed.getPeople())
+                        .targets(parsed.getTargets())
+                        .requiredDocs(parsed.getRequiredDocs())
+                        .build();
+
+                scholarshipRepository.save(s);
+                count++;
+
+            } catch (Exception e) {
+                log.error("[Scholarship Parsing Error] {}: {}", raw.getName(), e.getMessage());
+            }
         }
 
         return count;

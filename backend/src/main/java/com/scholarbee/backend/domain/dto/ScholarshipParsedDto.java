@@ -8,15 +8,12 @@ import java.util.List;
 @Data
 public class ScholarshipParsedDto {
 
-    private String applyStart;
-    private String applyEnd;
+    private String applyPeriod;
     private String amount;
     private String people;
 
-    private List<String> targets = new ArrayList<>();
-    private List<String> requiredDocs = new ArrayList<>();
-
-    private List<String> otherLines = new ArrayList<>();
+    private String targets;
+    private String requiredDocs;
 
     private List<String> foundationCandidates = new ArrayList<>();
 }

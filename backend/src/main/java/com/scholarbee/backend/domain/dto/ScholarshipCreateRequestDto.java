@@ -13,7 +13,6 @@ public class ScholarshipCreateRequestDto {
     private String name;
     private String amount;
     private String foundation;
-    private String applyStart;
-    private String applyEnd;
+    private String applyPeriod;
     private String target;
 }
