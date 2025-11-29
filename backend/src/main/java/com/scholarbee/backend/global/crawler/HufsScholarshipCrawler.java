@@ -4,10 +4,8 @@ import com.scholarbee.backend.domain.dto.ScholarshipRawDto;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,39 +25,38 @@ public class HufsScholarshipCrawler implements ScholarshipCrawler {
                     .timeout(10000)
                     .get();
 
-            Elements rows = doc.select("table tbody tr");
+            for (var row : doc.select("table tbody tr")) {
 
-            for (Element row : rows) {
-                String title = row.select("td.td-subject a strong").text();
-                String link = DOMAIN + row.select("td.td-subject a").attr("href");
+                String name = row.select("td.td-subject a strong").text();
+                if (name.isEmpty()) continue;
+
+                String url = DOMAIN + row.select("td.td-subject a").attr("href");
                 String foundation = row.select("td.td-write").text();
-                String date = row.select("td.td-date").text();
+                String postedDate = row.select("td.td-date").text();
 
-                if (title.isEmpty()) continue;
-
-                // 상세 페이지 본문 불러오기 (ML용)
-                Document detail = Jsoup.connect(link)
+                Document detail = Jsoup.connect(url)
                         .userAgent("Mozilla/5.0")
                         .timeout(10000)
                         .get();
 
-                Element content = detail.selectFirst(".board-article, .article, .article-text, .article-view");
-                String text = content != null ? content.text() : "";
+                // ★ 핵심 수정: board-view-content 존재 X
+                Element content = detail.selectFirst("div.view-con");
 
-                // ML에 넘길 원본 데이터 DTO
-                ScholarshipRawDto dto = ScholarshipRawDto.builder()
-                        .name(title)
-                        .url(link)
-                        .foundation(foundation)
-                        .postedDate(date)
-                        .rawText(text)
-                        .build();
+                String rawHtml = content != null ? content.html() : "[NO_CONTENT]";
 
-                results.add(dto);
+                results.add(
+                        ScholarshipRawDto.builder()
+                                .name(name)
+                                .foundation(foundation)
+                                .postedDate(postedDate)
+                                .url(url)
+                                .rawText(rawHtml)
+                                .build()
+                );
             }
 
-        } catch (IOException e) {
-            System.err.println("[HUFS Crawler Error] " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("[HUFS Crawler Error] " + e.getMessage());
         }
 
         return results;
