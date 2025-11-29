@@ -1,3 +1,0 @@
-[submodule "ml"]
-	path = ml
-	url = https://huggingface.co/memm159/kobert_scholar_clf
