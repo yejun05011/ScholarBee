@@ -27,7 +27,9 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
                         // 로그인/회원가입
-                        .requestMatchers("/api/v1/auth/**").permitAll()
+                        .requestMatchers("/api/v1/auth/**", "/",
+                                "/index.html", "/assets/**",
+                                "/static/**").permitAll()
 
                         // 장학금 등록 허용
                         .requestMatchers(HttpMethod.POST, "/api/v1/scholarships").permitAll()
