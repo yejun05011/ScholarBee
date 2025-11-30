@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Search, DollarSign, Calendar, Award } from "lucide-react";
 import { Input } from "./ui/input";
 import { Card } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
+import { scholarshipApi, recommendationApi } from "../services/api";
+import { useAuth } from "../contexts/AuthContext";
+import type { Scholarship as ApiScholarship } from "../types/api";
 
 interface Scholarship {
   id: number;
@@ -87,8 +90,78 @@ const mockScholarships: Scholarship[] = [
 
 export function ScholarshipListPage({ userGpa, onOpenDetail, onOpenGradeInput }: ScholarshipListPageProps) {
   const [searchTerm, setSearchTerm] = useState("");
+  const [scholarships, setScholarships] = useState<Scholarship[]>(mockScholarships);
+  const [loading, setLoading] = useState(false);
+  const { studentId } = useAuth();
 
-  const filteredScholarships = mockScholarships
+  // 장학금 목록 불러오기
+  useEffect(() => {
+    loadScholarships();
+  }, [studentId]);
+
+  const loadScholarships = async () => {
+    setLoading(true);
+    try {
+      // 추천 장학금 시도
+      if (studentId && userGpa) {
+        try {
+          const recommendations = await recommendationApi.getRecommendations(studentId);
+          if (recommendations.length > 0) {
+            const mappedScholarships = recommendations.map(s => mapApiToLocal(s));
+            setScholarships(mappedScholarships);
+            setLoading(false);
+            return;
+          }
+        } catch (error) {
+          console.log('추천 장학금 없음, 전체 목록 불러오기');
+        }
+      }
+
+      // 전체 장학금 목록 불러오기
+      const allScholarships = await scholarshipApi.getScholarships({ page: 0, size: 100 });
+      const mappedScholarships = allScholarships.map(s => mapApiToLocal(s));
+      setScholarships(mappedScholarships);
+    } catch (error) {
+      console.error('장학금 목록 불러오기 실패:', error);
+      // 에러 시 목업 데이터 사용
+      setScholarships(mockScholarships);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const mapApiToLocal = (apiScholarship: ApiScholarship): Scholarship => {
+    return {
+      id: apiScholarship.scholarshipId,
+      name: apiScholarship.name,
+      organization: apiScholarship.organization,
+      amount: apiScholarship.amount,
+      deadline: apiScholarship.deadline,
+      minGpa: apiScholarship.minGpa,
+      category: apiScholarship.category,
+      eligible: userGpa ? userGpa >= apiScholarship.minGpa : false,
+    };
+  };
+
+  const handleSearch = async () => {
+    if (!searchTerm.trim()) {
+      loadScholarships();
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const results = await scholarshipApi.searchScholarships({ keyword: searchTerm });
+      const mappedScholarships = results.map(s => mapApiToLocal(s));
+      setScholarships(mappedScholarships);
+    } catch (error) {
+      console.error('장학금 검색 실패:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredScholarships = scholarships
     .map(scholarship => ({
       ...scholarship,
       eligible: userGpa ? userGpa >= scholarship.minGpa : false,
@@ -138,59 +211,68 @@ export function ScholarshipListPage({ userGpa, onOpenDetail, onOpenGradeInput }:
               placeholder="장학금 이름 또는 기관으로 검색"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
               className="pl-12 h-14"
             />
           </div>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {filteredScholarships.map((scholarship) => (
-            <Card
-              key={scholarship.id}
-              className={`p-6 cursor-pointer hover:shadow-lg transition-shadow ${
-                scholarship.eligible ? 'border-green-200 bg-green-50' : ''
-              }`}
-              onClick={() => onOpenDetail(scholarship)}
-            >
-              <div className="flex items-start justify-between mb-4">
-                <h3 className="text-xl flex-1">{scholarship.name}</h3>
-                {scholarship.eligible && userGpa && (
-                  <Badge className="bg-green-600 text-white">
-                    지원가능
-                  </Badge>
-                )}
-              </div>
-
-              <p className="text-gray-600 mb-4">{scholarship.organization}</p>
-
-              <div className="space-y-3">
-                <div className="flex items-center gap-3 text-gray-600">
-                  <DollarSign className="h-4 w-4" />
-                  <span>{scholarship.amount}</span>
-                </div>
-
-                <div className="flex items-center gap-3 text-gray-600">
-                  <Calendar className="h-4 w-4" />
-                  <span>마감: {scholarship.deadline}</span>
-                </div>
-
-                <div className="flex items-center gap-3 text-gray-600">
-                  <Award className="h-4 w-4" />
-                  <span>최소 평점: {scholarship.minGpa.toFixed(1)}</span>
-                </div>
-              </div>
-
-              <div className="mt-4">
-                <Badge variant="outline">{scholarship.category}</Badge>
-              </div>
-            </Card>
-          ))}
-        </div>
-
-        {filteredScholarships.length === 0 && (
+        {loading ? (
           <div className="text-center py-16">
-            <p className="text-gray-500">검색 결과가 없습니다</p>
+            <p className="text-gray-500">로딩 중...</p>
           </div>
+        ) : (
+          <>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {filteredScholarships.map((scholarship) => (
+                <Card
+                  key={scholarship.id}
+                  className={`p-6 cursor-pointer hover:shadow-lg transition-shadow ${
+                    scholarship.eligible ? 'border-green-200 bg-green-50' : ''
+                  }`}
+                  onClick={() => onOpenDetail(scholarship)}
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <h3 className="text-xl flex-1">{scholarship.name}</h3>
+                    {scholarship.eligible && userGpa && (
+                      <Badge className="bg-green-600 text-white">
+                        지원가능
+                      </Badge>
+                    )}
+                  </div>
+
+                  <p className="text-gray-600 mb-4">{scholarship.organization}</p>
+
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3 text-gray-600">
+                      <DollarSign className="h-4 w-4" />
+                      <span>{scholarship.amount}</span>
+                    </div>
+
+                    <div className="flex items-center gap-3 text-gray-600">
+                      <Calendar className="h-4 w-4" />
+                      <span>마감: {scholarship.deadline}</span>
+                    </div>
+
+                    <div className="flex items-center gap-3 text-gray-600">
+                      <Award className="h-4 w-4" />
+                      <span>최소 평점: {scholarship.minGpa.toFixed(1)}</span>
+                    </div>
+                  </div>
+
+                  <div className="mt-4">
+                    <Badge variant="outline">{scholarship.category}</Badge>
+                  </div>
+                </Card>
+              ))}
+            </div>
+
+            {filteredScholarships.length === 0 && (
+              <div className="text-center py-16">
+                <p className="text-gray-500">검색 결과가 없습니다</p>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
