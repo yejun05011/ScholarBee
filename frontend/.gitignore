@@ -16,4 +16,5 @@ Thumbs.db
 
 # 환경 변수 파일
 .env
-.env.local
+.env.localnode_modules/
+node_modules/
