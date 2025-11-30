@@ -166,10 +166,15 @@ export function ScholarshipListPage({ userGpa, onOpenDetail, onOpenGradeInput }:
       ...scholarship,
       eligible: userGpa ? userGpa >= scholarship.minGpa : false,
     }))
-    .filter(scholarship =>
-      scholarship.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      scholarship.organization.toLowerCase().includes(searchTerm.toLowerCase())
-    )
+    .filter(scholarship => {
+      const searchLower = searchTerm.toLowerCase();
+      const name = scholarship.name || '';
+      const organization = scholarship.organization || '';
+      return (
+        name.toLowerCase().includes(searchLower) ||
+        organization.toLowerCase().includes(searchLower)
+      );
+    })
     .sort((a, b) => {
       if (a.eligible && !b.eligible) return -1;
       if (!a.eligible && b.eligible) return 1;
