@@ -13,6 +13,5 @@ public class WishlistListResponseDto {
     private String name;
     private String amount;
     private String foundation;
-    private String applyStart;
-    private String applyEnd;
+    private String applyPeriod;
 }
