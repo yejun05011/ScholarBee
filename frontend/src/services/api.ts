@@ -76,11 +76,25 @@ async function fetchApi<T>(
       return undefined as T;
     }
 
-    const data = await response.json();
+    // JSON 파싱 전 Content-Type 확인
+    const contentType = response.headers.get('content-type');
+    let data;
+    
+    if (contentType && contentType.includes('application/json')) {
+      data = await response.json();
+    } else {
+      // JSON이 아닌 경우 텍스트로 처리
+      const text = await response.text();
+      console.warn('응답이 JSON이 아닙니다:', text);
+      data = text ? { message: text } : {};
+    }
 
     if (!response.ok) {
-      throw new ApiError(response.status, data.message || 'API 요청 실패');
+      throw new ApiError(response.status, data.message || data || 'API 요청 실패');
     }
+
+    // 응답 데이터 로깅
+    console.log(`API 응답 [${endpoint}]:`, data);
 
     return data;
   } catch (error) {
@@ -106,10 +120,13 @@ export const authApi = {
     if (USE_MOCK) {
       return mockApi.signUp(request.email, request.password, request.name);
     }
-    return fetchApi<SignUpResponse>('/api/auth/signup', {
+    console.log('회원가입 요청:', request);
+    const response = await fetchApi<SignUpResponse>('/api/auth/signup', {
       method: 'POST',
       body: JSON.stringify(request),
     });
+    console.log('회원가입 응답:', response);
+    return response;
   },
 
   // 로그인
@@ -117,10 +134,13 @@ export const authApi = {
     if (USE_MOCK) {
       return mockApi.login(request.email, request.password);
     }
-    return fetchApi<LoginResponse>('/api/auth/login', {
+    console.log('로그인 요청:', request);
+    const response = await fetchApi<LoginResponse>('/api/auth/login', {
       method: 'POST',
       body: JSON.stringify(request),
     });
+    console.log('로그인 응답:', response);
+    return response;
   },
 };
 
