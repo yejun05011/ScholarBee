@@ -50,49 +50,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const response = await authApi.login({ email, password });
       
-      console.log('📥 로그인 응답 전체 구조:', JSON.stringify(response, null, 2));
+      console.log('📥 로그인 응답:', response);
       
-      // 응답 데이터 검증 - 여러 형태 지원
-      if (!response || typeof response !== 'object') {
+      // 새로운 API 명세: {accessToken, expiresIn}
+      if (!response || !response.accessToken) {
         throw new Error('로그인 응답이 올바르지 않습니다');
       }
       
-      // 토큰 추출 (여러 필드명 지원)
-      const token = response.token || response.accessToken || response.jwt;
-      if (!token) {
-        console.error('❌ 토큰을 찾을 수 없습니다. 응답:', response);
-        throw new Error('토큰을 받지 못했습니다');
-      }
-      
-      // studentId 추출 (여러 형태 지원)
-      // 1. response.student.studentId (중첩 구조)
-      // 2. response.studentId (직접 필드)
-      // 3. 기타 변형들
-      let studentId = response.studentId || response.student_id || response.id || response.userId;
-      
-      // student 객체 안에 있는 경우 처리
-      if (!studentId && response.student) {
-        studentId = response.student.studentId || response.student.student_id || response.student.id;
-      }
-      
-      if (!studentId) {
-        console.error('❌ studentId를 찾을 수 없습니다. 응답:', response);
-        console.error('사용 가능한 필드:', Object.keys(response));
-        throw new Error('학생 ID를 받지 못했습니다. 백엔드 응답 구조를 확인해주세요.');
-      }
-      
+      const token = response.accessToken;
       console.log('✅ 토큰:', token);
-      console.log('✅ studentId:', studentId);
       
-      // 토큰과 학생 ID 저장
+      // 토큰 저장
       localStorage.setItem('authToken', token);
-      localStorage.setItem('studentId', String(studentId));
       
-      // 학생 정보 조회
-      const user = await studentApi.getStudent(Number(studentId));
+      // 마이페이지 조회로 studentId 가져오기
+      const user = await studentApi.getMyProfile();
+      
+      console.log('✅ 사용자 정보:', user);
+      
+      // 학생 ID 저장
+      localStorage.setItem('studentId', String(user.studentId));
       
       setCurrentUser(user);
-      setStudentId(Number(studentId));
+      setStudentId(user.studentId);
       setIsAuthenticated(true);
       
       toast.success('로그인되었습니다');

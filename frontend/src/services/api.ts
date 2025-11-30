@@ -10,49 +10,35 @@ import type {
   ScholarshipSearchParams,
   PaginationParams,
   Wishlist,
-  CreateWishlistRequest,
-  CreateWishlistResponse,
+  WishlistToggleResponse,
   Application,
   CreateApplicationRequest,
   CreateApplicationResponse,
   StudentDetail,
   CreateStudentDetailRequest,
-  CreateStudentDetailResponse,
   UpdateStudentDetailRequest,
   Qualification,
   CreateQualificationRequest,
   CreateQualificationResponse,
+  ApiResponse,
 } from '../types/api';
-import { mockApi } from './mockData';
 
-// API 베이스 URL - 환경에 맞게 변경
+// API 베이스 URL
 const API_BASE_URL = typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_URL 
   ? import.meta.env.VITE_API_URL 
   : 'http://localhost:8080';
 
-// Mock 모드 활성화 여부 (백엔드 서버가 없을 때 사용)
-// .env 파일이 없거나 VITE_USE_MOCK이 설정되지 않은 경우 기본값은 true (개발 편의성)
-const USE_MOCK = typeof import.meta !== 'undefined' 
-  ? (import.meta.env?.VITE_USE_MOCK === 'true' || import.meta.env?.VITE_USE_MOCK === undefined)
-  : true;
-
-// Mock 모드 메시지 출력
-if (USE_MOCK) {
-  console.log('🔶 Mock 모드로 실행 중입니다. 실제 백엔드 서버는 사용하지 않습니다.');
-  console.log('💡 실제 백엔드 서버를 사용하려면 .env 파일에 VITE_USE_MOCK=false를 설정하세요.');
-} else {
-  console.log('🔷 실제 백엔드 서버 모드로 실행 중입니다:', API_BASE_URL);
-}
+console.log('🔷 백엔드 API 서버:', API_BASE_URL);
 
 // API 에러 처리
 class ApiError extends Error {
-  constructor(public status: number, message: string) {
+  constructor(public status: number, message: string, public data?: any) {
     super(message);
     this.name = 'ApiError';
   }
 }
 
-// HTTP 요청 헬퍼
+// HTTP 요청 헬퍼 - 새로운 응답 구조 {isSuccess, code, message, data} 처리
 async function fetchApi<T>(
   endpoint: string,
   options: RequestInit = {}
@@ -78,34 +64,39 @@ async function fetchApi<T>(
 
     // JSON 파싱 전 Content-Type 확인
     const contentType = response.headers.get('content-type');
-    let data;
+    let responseData: ApiResponse<T> | any;
     
     if (contentType && contentType.includes('application/json')) {
-      data = await response.json();
+      responseData = await response.json();
     } else {
       // JSON이 아닌 경우 텍스트로 처리
       const text = await response.text();
       console.warn('응답이 JSON이 아닙니다:', text);
-      data = text ? { message: text } : {};
+      responseData = text ? { message: text } : {};
     }
 
+    // API 응답 로깅
+    console.log(`📡 API 응답 [${endpoint}]:`, responseData);
+
+    // 에러 처리
     if (!response.ok) {
-      throw new ApiError(response.status, data.message || data || 'API 요청 실패');
+      const errorMessage = responseData.message || responseData.error || 'API 요청 실패';
+      throw new ApiError(response.status, errorMessage, responseData);
     }
 
-    // 응답 데이터 로깅
-    console.log(`API 응답 [${endpoint}]:`, data);
+    // 새로운 응답 구조: {isSuccess, code, message, data}
+    // data 필드가 있으면 data를 반환, 없으면 전체 응답 반환
+    if (responseData && typeof responseData === 'object' && 'data' in responseData) {
+      return responseData.data as T;
+    }
 
-    return data;
+    return responseData as T;
   } catch (error) {
     // 네트워크 에러 (백엔드 서버 미실행)
     if (error instanceof TypeError && error.message === 'Failed to fetch') {
       throw new ApiError(
         0,
-        '백엔드 서버에 연결할 수 없습니다. 서버가 실행 중인지 확인해주세요.\n' +
-        `서버 주소: ${API_BASE_URL}\n\n` +
-        'Mock 데이터로 테스트하려면 .env 파일에 다음을 추가하세요:\n' +
-        'VITE_USE_MOCK=true'
+        `백엔드 서버에 연결할 수 없습니다.\n서버 주소: ${API_BASE_URL}\n서버가 실행 중인지 확인해주세요.`
       );
     }
     throw error;
@@ -115,63 +106,49 @@ async function fetchApi<T>(
 // ===== 인증 API =====
 
 export const authApi = {
-  // 회원가입
+  // 회원가입 - POST /api/v1/auth/signup
   signUp: async (request: SignUpRequest): Promise<SignUpResponse> => {
-    if (USE_MOCK) {
-      return mockApi.signUp(request.email, request.password, request.name);
-    }
-    console.log('회원가입 요청:', request);
-    const response = await fetchApi<SignUpResponse>('/api/auth/signup', {
+    console.log('📤 회원가입 요청:', request);
+    return fetchApi<SignUpResponse>('/api/v1/auth/signup', {
       method: 'POST',
       body: JSON.stringify(request),
     });
-    console.log('회원가입 응답:', response);
-    return response;
   },
 
-  // 로그인
+  // 로그인 - POST /api/v1/auth/login
   login: async (request: LoginRequest): Promise<LoginResponse> => {
-    if (USE_MOCK) {
-      return mockApi.login(request.email, request.password);
-    }
-    console.log('로그인 요청:', request);
-    const response = await fetchApi<LoginResponse>('/api/auth/login', {
+    console.log('📤 로그인 요청:', request);
+    return fetchApi<LoginResponse>('/api/v1/auth/login', {
       method: 'POST',
       body: JSON.stringify(request),
     });
-    console.log('로그인 응답:', response);
-    return response;
   },
 };
 
 // ===== 학생 API =====
 
 export const studentApi = {
-  // 학생 정보 조회
-  getStudent: async (studentId: number): Promise<Student> => {
-    if (USE_MOCK) {
-      return mockApi.getStudent(studentId);
-    }
-    return fetchApi<Student>(`/api/students/${studentId}`);
+  // 마이페이지 조회 - GET /api/v1/students/me
+  getMyProfile: async (): Promise<Student> => {
+    return fetchApi<Student>('/api/v1/students/me');
   },
 
-  // 학생 정보 수정
-  updateStudent: async (
-    studentId: number,
-    request: UpdateStudentRequest
-  ): Promise<Student> => {
-    if (USE_MOCK) {
-      return mockApi.updateStudent(studentId, request);
-    }
-    return fetchApi<Student>(`/api/students/${studentId}`, {
-      method: 'PUT',
+  // 학생 정보 조회 (ID로)
+  getStudent: async (studentId: number): Promise<Student> => {
+    return fetchApi<Student>(`/api/v1/students/${studentId}`);
+  },
+
+  // 내 정보 수정 - PATCH /api/v1/students/me/details
+  updateMyProfile: async (request: UpdateStudentRequest): Promise<void> => {
+    return fetchApi<void>('/api/v1/students/me/details', {
+      method: 'PATCH',
       body: JSON.stringify(request),
     });
   },
 
   // 학생 계정 삭제
   deleteStudent: async (studentId: number): Promise<void> => {
-    return fetchApi<void>(`/api/students/${studentId}`, {
+    return fetchApi<void>(`/api/v1/students/${studentId}`, {
       method: 'DELETE',
     });
   },
@@ -180,74 +157,55 @@ export const studentApi = {
 // ===== 장학금 API =====
 
 export const scholarshipApi = {
-  // 장학금 목록 조회
-  getScholarships: async (params?: PaginationParams): Promise<Scholarship[]> => {
-    if (USE_MOCK) {
-      return mockApi.getScholarships(params);
-    }
-    const queryString = new URLSearchParams(
-      params as Record<string, string>
-    ).toString();
+  // 장학금 검색 - GET /api/v1/scholarships?keyword=...&minGpa=...&maxIncome=...
+  searchScholarships: async (params?: ScholarshipSearchParams): Promise<Scholarship[]> => {
+    const queryParams = new URLSearchParams();
+    if (params?.keyword) queryParams.append('keyword', params.keyword);
+    if (params?.minGpa !== undefined) queryParams.append('minGpa', params.minGpa.toString());
+    if (params?.maxIncome !== undefined) queryParams.append('maxIncome', params.maxIncome.toString());
+    if (params?.category) queryParams.append('category', params.category);
+    
+    const queryString = queryParams.toString();
     return fetchApi<Scholarship[]>(
-      `/api/scholarships${queryString ? `?${queryString}` : ''}`
+      `/api/v1/scholarships${queryString ? `?${queryString}` : ''}`
     );
   },
 
-  // 장학금 상세 조회
+  // 장학금 상세 조회 - GET /api/v1/scholarships/{scholarshipId}
   getScholarship: async (scholarshipId: number): Promise<Scholarship> => {
-    if (USE_MOCK) {
-      return mockApi.getScholarship(scholarshipId);
-    }
-    return fetchApi<Scholarship>(`/api/scholarships/${scholarshipId}`);
+    return fetchApi<Scholarship>(`/api/v1/scholarships/${scholarshipId}`);
   },
 
-  // 장학금 검색
-  searchScholarships: async (
-    params: ScholarshipSearchParams
-  ): Promise<Scholarship[]> => {
-    if (USE_MOCK) {
-      return mockApi.searchScholarships(params);
-    }
+  // 장학금 목록 조회 (페이지네이션)
+  getScholarships: async (params?: PaginationParams): Promise<Scholarship[]> => {
     const queryString = new URLSearchParams(
       params as Record<string, string>
     ).toString();
     return fetchApi<Scholarship[]>(
-      `/api/scholarships/search?${queryString}`
+      `/api/v1/scholarships${queryString ? `?${queryString}` : ''}`
     );
+  },
+
+  // 장학금 삭제 - DELETE /api/v1/scholarships/{scholarshipId}
+  deleteScholarship: async (scholarshipId: number): Promise<{ deletedScholarshipId: number }> => {
+    return fetchApi<{ deletedScholarshipId: number }>(`/api/v1/scholarships/${scholarshipId}`, {
+      method: 'DELETE',
+    });
   },
 };
 
 // ===== 찜 목록 API =====
 
 export const wishlistApi = {
-  // 찜 목록 조회
-  getWishlist: async (studentId: number): Promise<Wishlist[]> => {
-    if (USE_MOCK) {
-      return mockApi.getWishlists(studentId);
-    }
-    return fetchApi<Wishlist[]>(`/api/wishlist/${studentId}`);
+  // 찜한 장학금 목록 조회 - GET /api/v1/students/me/wishlists/scholarships
+  getMyWishlist: async (): Promise<Scholarship[]> => {
+    return fetchApi<Scholarship[]>('/api/v1/students/me/wishlists/scholarships');
   },
 
-  // 찜 추가
-  addWishlist: async (
-    request: CreateWishlistRequest
-  ): Promise<CreateWishlistResponse> => {
-    if (USE_MOCK) {
-      return mockApi.createWishlist(request);
-    }
-    return fetchApi<CreateWishlistResponse>('/api/wishlist', {
+  // 장학금 찜하기 (토글) - POST /api/v1/scholarships/{scholarshipId}/wishlists
+  toggleWishlist: async (scholarshipId: number): Promise<WishlistToggleResponse> => {
+    return fetchApi<WishlistToggleResponse>(`/api/v1/scholarships/${scholarshipId}/wishlists`, {
       method: 'POST',
-      body: JSON.stringify(request),
-    });
-  },
-
-  // 찜 삭제
-  deleteWishlist: async (wishlistId: number): Promise<void> => {
-    if (USE_MOCK) {
-      return mockApi.deleteWishlist(wishlistId);
-    }
-    return fetchApi<void>(`/api/wishlist/${wishlistId}`, {
-      method: 'DELETE',
     });
   },
 };
@@ -257,20 +215,14 @@ export const wishlistApi = {
 export const applicationApi = {
   // 지원 내역 조회
   getApplications: async (studentId: number): Promise<Application[]> => {
-    if (USE_MOCK) {
-      return mockApi.getApplications(studentId);
-    }
-    return fetchApi<Application[]>(`/api/applications/${studentId}`);
+    return fetchApi<Application[]>(`/api/v1/applications/${studentId}`);
   },
 
   // 장학금 지원
   applyScholarship: async (
     request: CreateApplicationRequest
   ): Promise<CreateApplicationResponse> => {
-    if (USE_MOCK) {
-      return mockApi.createApplication(request);
-    }
-    return fetchApi<CreateApplicationResponse>('/api/applications', {
+    return fetchApi<CreateApplicationResponse>('/api/v1/applications', {
       method: 'POST',
       body: JSON.stringify(request),
     });
@@ -278,10 +230,7 @@ export const applicationApi = {
 
   // 지원 취소
   cancelApplication: async (applicationId: number): Promise<void> => {
-    if (USE_MOCK) {
-      return mockApi.deleteApplication(applicationId);
-    }
-    return fetchApi<void>(`/api/applications/${applicationId}`, {
+    return fetchApi<void>(`/api/v1/applications/${applicationId}`, {
       method: 'DELETE',
     });
   },
@@ -290,37 +239,28 @@ export const applicationApi = {
 // ===== 학생 상세정보 API =====
 
 export const studentDetailApi = {
-  // 학생 상세정보 조회
-  getStudentDetails: async (studentId: number): Promise<StudentDetail[]> => {
-    if (USE_MOCK) {
-      return mockApi.getStudentDetails(studentId);
-    }
-    return fetchApi<StudentDetail[]>(`/api/student-details/${studentId}`);
+  // 입력 정보 조회 - GET /api/v1/students/me/details
+  getMyDetails: async (): Promise<StudentDetail> => {
+    return fetchApi<StudentDetail>('/api/v1/students/me/details');
   },
 
-  // 학생 상세정보 등록
-  createStudentDetail: async (
-    request: CreateStudentDetailRequest
-  ): Promise<CreateStudentDetailResponse> => {
-    if (USE_MOCK) {
-      return mockApi.createStudentDetail(request);
-    }
-    return fetchApi<CreateStudentDetailResponse>('/api/student-details', {
+  // 학생 상세정보 조회 (ID로)
+  getStudentDetails: async (studentId: number): Promise<StudentDetail> => {
+    return fetchApi<StudentDetail>(`/api/v1/students/${studentId}/details`);
+  },
+
+  // 확정 입력 (등록) - POST /api/v1/students/me/details
+  createMyDetails: async (request: CreateStudentDetailRequest): Promise<void> => {
+    return fetchApi<void>('/api/v1/students/me/details', {
       method: 'POST',
       body: JSON.stringify(request),
     });
   },
 
-  // 학생 상세정보 수정
-  updateStudentDetail: async (
-    detailId: number,
-    request: UpdateStudentDetailRequest
-  ): Promise<StudentDetail> => {
-    if (USE_MOCK) {
-      return mockApi.updateStudentDetail(detailId, request);
-    }
-    return fetchApi<StudentDetail>(`/api/student-details/${detailId}`, {
-      method: 'PUT',
+  // 학생 상세정보 수정 - PATCH /api/v1/students/me/details
+  updateMyDetails: async (request: UpdateStudentDetailRequest): Promise<void> => {
+    return fetchApi<void>('/api/v1/students/me/details', {
+      method: 'PATCH',
       body: JSON.stringify(request),
     });
   },
@@ -331,20 +271,14 @@ export const studentDetailApi = {
 export const qualificationApi = {
   // 자격증 목록 조회
   getQualifications: async (studentId: number): Promise<Qualification[]> => {
-    if (USE_MOCK) {
-      return mockApi.getQualifications(studentId);
-    }
-    return fetchApi<Qualification[]>(`/api/qualifications/${studentId}`);
+    return fetchApi<Qualification[]>(`/api/v1/qualifications/${studentId}`);
   },
 
   // 자격증 등록
   createQualification: async (
     request: CreateQualificationRequest
   ): Promise<CreateQualificationResponse> => {
-    if (USE_MOCK) {
-      return mockApi.createQualification(request);
-    }
-    return fetchApi<CreateQualificationResponse>('/api/qualifications', {
+    return fetchApi<CreateQualificationResponse>('/api/v1/qualifications', {
       method: 'POST',
       body: JSON.stringify(request),
     });
@@ -352,10 +286,7 @@ export const qualificationApi = {
 
   // 자격증 삭제
   deleteQualification: async (qualificationId: number): Promise<void> => {
-    if (USE_MOCK) {
-      return mockApi.deleteQualification(qualificationId);
-    }
-    return fetchApi<void>(`/api/qualifications/${qualificationId}`, {
+    return fetchApi<void>(`/api/v1/qualifications/${qualificationId}`, {
       method: 'DELETE',
     });
   },
@@ -366,10 +297,7 @@ export const qualificationApi = {
 export const recommendationApi = {
   // 추천 장학금 조회
   getRecommendations: async (studentId: number): Promise<Scholarship[]> => {
-    if (USE_MOCK) {
-      return mockApi.getRecommendations(studentId);
-    }
-    return fetchApi<Scholarship[]>(`/api/recommendations/${studentId}`);
+    return fetchApi<Scholarship[]>(`/api/v1/recommendations/${studentId}`);
   },
 };
 
