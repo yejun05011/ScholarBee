@@ -39,7 +39,7 @@ public class StudentQueryService {
 
     public StudentMyPageResponseDto getMyPage(String email) {
         Student student = studentRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("학생을 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "학생을 찾을 수 없습니다."));
 
         return StudentMyPageResponseDto.builder()
                 .studentId(student.getId())
