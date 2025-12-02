@@ -34,8 +34,7 @@ public class WishlistQueryService {
                         .name(w.getScholarship().getName())
                         .amount(w.getScholarship().getAmount())
                         .foundation(w.getScholarship().getFoundation())
-                        .applyStart(w.getScholarship().getApplyStart())
-                        .applyEnd(w.getScholarship().getApplyEnd())
+                        .applyPeriod(w.getScholarship().getApplyPeriod())
                         .build()
                 )
                 .toList();
