@@ -11,4 +11,5 @@ public class WishlistListResponseDto {
 
     private Long rssScholarshipId;
     private String title;
+    private Long count;
 }

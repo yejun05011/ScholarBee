@@ -12,4 +12,6 @@ public interface WishlistRepository extends JpaRepository<Wishlist, Long> {
     Optional<Wishlist> findByStudentAndRssScholarship(Student student, RssScholarship rssScholarship);
 
     List<Wishlist> findAllByStudent(Student student);
+
+    long countByStudentId(Long studentId);
 }

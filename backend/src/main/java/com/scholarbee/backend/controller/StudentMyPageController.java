@@ -51,4 +51,19 @@ public class StudentMyPageController {
         return ResponseEntity.ok(wishlistQueryService.getWishlist(studentId));
     }
 
+    /**
+     * 내가 찜한 장학금 개수 조회
+     */
+    @GetMapping("/wishlists/count")
+    public ResponseEntity<CustomResponse<Long>> getMyWishlistCount(
+            @AuthenticationPrincipal CustomUserDetails user
+    ) {
+        Long studentId = user.getStudentId();
+        long count = wishlistQueryService.getWishlistCount(studentId);
+
+        return ResponseEntity.ok(
+                CustomResponse.ok("찜 개수 조회 성공", count)
+        );
+    }
+
 }
