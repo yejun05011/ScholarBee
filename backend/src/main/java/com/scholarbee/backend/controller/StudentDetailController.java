@@ -13,11 +13,14 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/students/me")
+@RequestMapping("/api/v1/students/{studentId}")
 public class StudentDetailController {
 
     private final StudentDetailService studentDetailService;
 
+    /**
+     * 입력정보 등록
+     */
     @PostMapping("/details")
     public ResponseEntity<CustomResponse<Void>> registerStudentDetails(
             @AuthenticationPrincipal UserDetails userDetails,
@@ -29,6 +32,9 @@ public class StudentDetailController {
                 .body(CustomResponse.created("사용자 정보가 등록되었습니다.", null));
     }
 
+    /**
+     * 입력정보 조회
+     */
     @GetMapping("/details")
     public ResponseEntity<CustomResponse<StudentDetailResponseDto>> getStudentDetails(
             @AuthenticationPrincipal UserDetails userDetails) {

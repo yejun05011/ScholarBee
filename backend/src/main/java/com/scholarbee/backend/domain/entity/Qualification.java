@@ -21,7 +21,7 @@ public class Qualification extends BaseTimeEntity {
     @MapsId
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "scholar_id")
-    private Scholarship scholarship;
+    private RssScholarship rssScholarship;
 
     @Column(name = "min_gpa", precision = 3, scale = 2)
     private BigDecimal minGpa;

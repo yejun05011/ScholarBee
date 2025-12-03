@@ -31,6 +31,14 @@ public class SecurityConfig {
                                 "/index.html", "/assets/**",
                                 "/static/**").permitAll()
 
+                        .requestMatchers(
+                                "/rss/**",   // ← ⭐ RSS 해제
+                                "/error",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/api/v1/scholarships"
+                        ).permitAll()
+
                         // 장학금 등록 허용
                         .requestMatchers(HttpMethod.POST, "/api/v1/scholarships").permitAll()
 

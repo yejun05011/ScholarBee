@@ -9,9 +9,6 @@ import lombok.Getter;
 @AllArgsConstructor
 public class WishlistListResponseDto {
 
-    private Long scholarshipId;
-    private String name;
-    private String amount;
-    private String foundation;
-    private String applyPeriod;
+    private Long rssScholarshipId;
+    private String title;
 }
