@@ -1,12 +1,12 @@
 package com.scholarbee.backend.service;
 
 import com.scholarbee.backend.domain.dto.WishlistResponseDto;
-import com.scholarbee.backend.domain.entity.Scholarship;
+import com.scholarbee.backend.domain.entity.RssScholarship;
 import com.scholarbee.backend.domain.entity.Student;
 import com.scholarbee.backend.domain.entity.Wishlist;
 import com.scholarbee.backend.global.exception.CustomException;
 import com.scholarbee.backend.global.response.CustomResponse;
-import com.scholarbee.backend.repository.ScholarshipRepository;
+import com.scholarbee.backend.repository.RssScholarshipRepository;
 import com.scholarbee.backend.repository.StudentRepository;
 import com.scholarbee.backend.repository.WishlistRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,27 +20,27 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class WishlistService {
 
-    private final ScholarshipRepository scholarshipRepository;
+    private final RssScholarshipRepository rssScholarshipRepository;
     private final StudentRepository studentRepository;
     private final WishlistRepository wishlistRepository;
 
     @Transactional
-    public CustomResponse<WishlistResponseDto> toggleWishlist(Long scholarshipId, Long studentId) {
+    public CustomResponse<WishlistResponseDto> toggleWishlist(Long rssScholarshipId, Long studentId) {
 
-        Scholarship scholarship = scholarshipRepository.findById(scholarshipId)
+        RssScholarship rssScholarship = rssScholarshipRepository.findById(rssScholarshipId)
                 .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "존재하지 않는 장학금입니다."));
 
         Student student = studentRepository.findById(studentId)
                 .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "존재하지 않는 학생입니다."));
 
-        Optional<Wishlist> existing = wishlistRepository.findByStudentAndScholarship(student, scholarship);
+        Optional<Wishlist> existing = wishlistRepository.findByStudentAndRssScholarship(student, rssScholarship);
 
         // 이미 찜한 상태면 취소
         if (existing.isPresent()) {
             wishlistRepository.delete(existing.get());
 
             WishlistResponseDto response = WishlistResponseDto.builder()
-                    .scholarshipId(scholarshipId)
+                    .rssScholarshipId(rssScholarshipId)
                     .isWished(false)
                     .build();
 
@@ -50,13 +50,13 @@ public class WishlistService {
         // 찜 등록
         Wishlist wishlist = Wishlist.builder()
                 .student(student)
-                .scholarship(scholarship)
+                .rssScholarship(rssScholarship)
                 .build();
 
         wishlistRepository.save(wishlist);
 
         WishlistResponseDto response = WishlistResponseDto.builder()
-                .scholarshipId(scholarshipId)
+                .rssScholarshipId(rssScholarshipId)
                 .isWished(true)
                 .build();
 

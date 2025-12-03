@@ -18,6 +18,9 @@ public class WishlistController {
 
     private final WishlistService wishlistService;
 
+    /**
+     * 토글형 찜
+     */
     @PostMapping("/{scholarshipId}/wishlists")
     public CustomResponse<WishlistResponseDto> toggleWishlist(
             @PathVariable Long scholarshipId,

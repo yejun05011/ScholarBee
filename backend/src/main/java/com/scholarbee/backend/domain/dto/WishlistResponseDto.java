@@ -9,6 +9,6 @@ import lombok.Getter;
 @AllArgsConstructor
 public class WishlistResponseDto {
 
-    private Long scholarshipId;
+    private Long rssScholarshipId;
     private boolean isWished;
 }

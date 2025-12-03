@@ -7,7 +7,7 @@ import lombok.*;
 @Entity
 @Table(name = "wishlists",
         uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"student_id", "scholar_id"})
+                @UniqueConstraint(columnNames = {"student_id", "rss_scholarship_id"})
         })
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -25,6 +25,6 @@ public class Wishlist extends BaseTimeEntity {
     private Student student;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "scholar_id", nullable = false)
-    private Scholarship scholarship;
+    @JoinColumn(name = "rss_scholarship_id", nullable = false)
+    private RssScholarship rssScholarship;
 }
