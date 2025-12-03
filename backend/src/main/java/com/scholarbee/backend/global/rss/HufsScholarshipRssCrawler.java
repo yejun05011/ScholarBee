@@ -38,23 +38,44 @@ public class HufsScholarshipRssCrawler {
                 String link = href.startsWith("http") ? href : DOMAIN + href;
                 String posted = row.select("td.td-date").text();
 
+                // 상세 페이지
                 Document detail = Jsoup.connect(link)
                         .userAgent("Mozilla/5.0")
                         .timeout(15000)
                         .get();
 
-                Element content = detail.selectFirst(".board-view-content, .view-con");
-                String htmlContent = content != null ? content.html() : "";
+                Element content = detail.selectFirst(
+                        ".board-view-content, .view-con, .article, #content, #article"
+                );
 
-                // rawText 생성
+                String htmlContent = "";
+                if (content != null) {
+
+                    // 1) 상대경로 이미지 절대 경로로 변환
+                    for (Element img : content.select("img")) {
+                        String src = img.attr("src");
+                        if (src != null && !src.startsWith("http")) {
+                            img.attr("src", DOMAIN + src);
+                        }
+                    }
+
+                    // 2) 스타일 정제된 HTML 생성
+                    htmlContent = cleanHtml(content.html());
+                }
+
+                // 3) rawText 생성
                 String rawText = toRawText(htmlContent);
 
-                // 첨부파일
+                // 4) 첨부파일 파싱
                 List<RssAttachment> files = new ArrayList<>();
                 for (Element a : detail.select(".view-file a, a[href*=download]")) {
+
                     String fileName = a.text();
                     String url = a.attr("href");
-                    if (!url.startsWith("http")) url = DOMAIN + url;
+
+                    if (!url.startsWith("http")) {
+                        url = DOMAIN + url;
+                    }
 
                     files.add(
                             RssAttachment.builder()
@@ -64,6 +85,7 @@ public class HufsScholarshipRssCrawler {
                     );
                 }
 
+                // 5) 최종 엔티티 생성
                 list.add(
                         RssScholarship.builder()
                                 .title(title)
@@ -83,8 +105,34 @@ public class HufsScholarshipRssCrawler {
         return list;
     }
 
-    // rawText 메서드 포함
+
+    // ============================================
+    //  🔥 HTML 정제 (스타일 제거 + img 보존)
+    // ============================================
+    private String cleanHtml(String html) {
+
+        if (html == null) return "";
+
+        Safelist safelist = Safelist.relaxed()
+                .addTags("img")
+                .addAttributes("img", "src", "alt", "title", "width", "height")
+                .removeAttributes("span", "style")
+                .removeAttributes("p", "style")
+                .removeAttributes("div", "style")
+                .removeAttributes("table", "style")
+                .removeAttributes("td", "style")
+                .removeAttributes("tr", "style");
+
+        return Jsoup.clean(html, safelist);
+    }
+
+
+    // ============================================
+    //  🔥 추천 알고리즘용 raw text 생성
+    // ============================================
     private String toRawText(String html) {
+
+        if (html == null) return "";
 
         String cleaned = Jsoup.clean(
                 html,
@@ -104,10 +152,8 @@ public class HufsScholarshipRssCrawler {
 
         String text = doc.text();
 
-        text = text.replace("\\n", "\n")
+        return text.replace("\\n", "\n")
                 .replaceAll("\n{2,}", "\n\n")
                 .trim();
-
-        return text;
     }
 }
