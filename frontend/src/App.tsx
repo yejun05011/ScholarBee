@@ -53,21 +53,20 @@ function AppContent() {
     if (!studentId) return;
     
     try {
-      const details = await studentDetailApi.getStudentDetails(studentId);
-      if (details && details.length > 0) {
-        // 가장 최근 상세정보 사용
-        const latestDetail = details[details.length - 1];
+      const details = await studentDetailApi.getMyDetails();
+      if (details) {
         setGradeData({
-          university: latestDetail.region || "",
-          major: latestDetail.major,
-          year: latestDetail.grade.toString(),
-          semester: latestDetail.semester,
-          gpa: latestDetail.gpa,
-          maxGpa: latestDetail.maxGpa,
+          university: details.department || "",
+          major: details.department,
+          year: details.grade.toString(),
+          semester: details.semester || 1,
+          gpa: details.gpa || 0,
+          maxGpa: 4.5,
         });
       }
     } catch (error) {
       console.error('학생 상세정보 불러오기 실패:', error);
+      // 상세정보가 없는 경우는 에러가 아니므로 무시
     }
   };
 
@@ -89,15 +88,12 @@ function AppContent() {
   const handleLogin = async (email: string, password: string) => {
     try {
       await login(email, password);
+      console.log('✅ 로그인 성공, 장학금 페이지로 이동');
       setCurrentPage('scholarships');
     } catch (error: any) {
-      console.error('로그인 실패:', error);
-      // ApiError인 경우 메시지 표시
-      if (error?.message) {
-        toast.error(error.message);
-      } else {
-        toast.error('로그인에 실패했습니다.');
-      }
+      console.error('❌ 로그인 실패:', error);
+      // 에러는 이미 AuthContext에서 toast로 표시됨
+      // 페이지는 그대로 유지
     }
   };
 
@@ -114,17 +110,15 @@ function AppContent() {
     if (studentId) {
       try {
         const detailRequest = {
-          studentId,
-          semester: data.semester,
-          gpa: data.gpa,
-          maxGpa: data.maxGpa,
-          income: 0, // 기본값
-          region: data.university,
-          major: data.major,
           grade: parseInt(data.year),
+          department: data.major,
+          isDisabled: false,
+          incomeBracket: 5, // 기본값 (추후 입력받을 수 있음)
+          gpa: data.gpa,
+          semester: data.semester,
         };
         
-        await studentDetailApi.createStudentDetail(detailRequest);
+        await studentDetailApi.createMyDetails(detailRequest);
         toast.success("성적 정보가 저장되었습니다");
       } catch (error) {
         console.error('성적 정보 저장 실패:', error);

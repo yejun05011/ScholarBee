@@ -577,6 +577,4 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 API 통합 중 문제가 발생하면:
 1. 브라우저 콘솔 로그 확인
 2. 네트워크 탭에서 API 요청/응답 확인
-3. 백엔드 서버 로그 확인
-
-Happy Coding! 🐝
+3. 백엔드 서버 로그 확인🐝

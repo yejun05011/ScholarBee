@@ -52,6 +52,8 @@ async function fetchApi<T>(
       ...options.headers,
     };
 
+    console.log(`📤 API 요청 [${endpoint}]:`, options.body ? JSON.parse(options.body as string) : '');
+
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       ...options,
       headers,
@@ -59,6 +61,7 @@ async function fetchApi<T>(
 
     // 204 No Content 처리
     if (response.status === 204) {
+      console.log(`📡 API 응답 [${endpoint}]: 204 No Content`);
       return undefined as T;
     }
 
@@ -71,7 +74,7 @@ async function fetchApi<T>(
     } else {
       // JSON이 아닌 경우 텍스트로 처리
       const text = await response.text();
-      console.warn('응답이 JSON이 아닙니다:', text);
+      console.warn('⚠️ 응답이 JSON이 아닙니다:', text);
       responseData = text ? { message: text } : {};
     }
 
@@ -81,19 +84,23 @@ async function fetchApi<T>(
     // 에러 처리
     if (!response.ok) {
       const errorMessage = responseData.message || responseData.error || 'API 요청 실패';
+      console.error(`❌ API 에러 [${endpoint}]:`, errorMessage);
       throw new ApiError(response.status, errorMessage, responseData);
     }
 
     // 새로운 응답 구조: {isSuccess, code, message, data}
     // data 필드가 있으면 data를 반환, 없으면 전체 응답 반환
     if (responseData && typeof responseData === 'object' && 'data' in responseData) {
+      console.log(`✅ 데이터 추출 [${endpoint}]:`, responseData.data);
       return responseData.data as T;
     }
 
+    console.log(`✅ 전체 응답 반환 [${endpoint}]:`, responseData);
     return responseData as T;
   } catch (error) {
     // 네트워크 에러 (백엔드 서버 미실행)
     if (error instanceof TypeError && error.message === 'Failed to fetch') {
+      console.error(`❌ 네트워크 에러:`, error);
       throw new ApiError(
         0,
         `백엔드 서버에 연결할 수 없습니다.\n서버 주소: ${API_BASE_URL}\n서버가 실행 중인지 확인해주세요.`

@@ -48,25 +48,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string) => {
     try {
+      console.log('🔐 로그인 시작...');
       const response = await authApi.login({ email, password });
       
       console.log('📥 로그인 응답:', response);
       
       // 새로운 API 명세: {accessToken, expiresIn}
       if (!response || !response.accessToken) {
+        console.error('❌ 응답 구조 오류:', response);
         throw new Error('로그인 응답이 올바르지 않습니다');
       }
       
       const token = response.accessToken;
-      console.log('✅ 토큰:', token);
+      console.log('✅ 토큰 받음:', token.substring(0, 20) + '...');
       
       // 토큰 저장
       localStorage.setItem('authToken', token);
       
+      console.log('👤 사용자 정보 조회 중...');
       // 마이페이지 조회로 studentId 가져오기
       const user = await studentApi.getMyProfile();
       
       console.log('✅ 사용자 정보:', user);
+      
+      if (!user || !user.studentId) {
+        console.error('❌ 사용자 정보 오류:', user);
+        throw new Error('사용자 정보를 가져올 수 없습니다');
+      }
       
       // 학생 ID 저장
       localStorage.setItem('studentId', String(user.studentId));
@@ -75,9 +83,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setStudentId(user.studentId);
       setIsAuthenticated(true);
       
+      console.log('🎉 로그인 완료!');
       toast.success('로그인되었습니다');
     } catch (error: any) {
       console.error('❌ 로그인 에러:', error);
+      
+      // 토큰 정리
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('studentId');
+      setIsAuthenticated(false);
+      
       toast.error(error.message || '로그인에 실패했습니다');
       throw error;
     }
