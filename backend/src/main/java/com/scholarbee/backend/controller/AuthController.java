@@ -23,6 +23,9 @@ public class AuthController {
     private final StudentCommandService studentCommandService;
     private final StudentQueryService studentQueryService;
 
+    /**
+     * 회원가입
+     */
     @PostMapping("/signup")
     public ResponseEntity<CustomResponse<StudentResponseDto>> registerStudent(
             @RequestBody StudentRegisterRequestDto request) {
@@ -33,6 +36,9 @@ public class AuthController {
                 .body(CustomResponse.created("회원가입이 완료되었습니다.", response));
     }
 
+    /**
+     * 로그인
+     */
     @PostMapping("/login")
     public ResponseEntity<CustomResponse<StudentLoginResponseDto>> loginStudent(
             @RequestBody StudentLoginRequestDto request) {

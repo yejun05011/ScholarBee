@@ -30,11 +30,8 @@ public class WishlistQueryService {
 
         List<WishlistListResponseDto> result = wishlists.stream()
                 .map(w -> WishlistListResponseDto.builder()
-                        .scholarshipId(w.getScholarship().getId())
-                        .name(w.getScholarship().getName())
-                        .amount(w.getScholarship().getAmount())
-                        .foundation(w.getScholarship().getFoundation())
-                        .applyPeriod(w.getScholarship().getApplyPeriod())
+                        .rssScholarshipId(w.getRssScholarship().getId())
+                        .title(w.getRssScholarship().getTitle())
                         .build()
                 )
                 .toList();
